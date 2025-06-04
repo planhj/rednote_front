@@ -1,12 +1,18 @@
 <template>
-  <Particles id="tsparticles" :particlesInit="particlesInit" :particlesLoaded="particlesLoaded" :options="options" class="particles-bg" />
+  <Particles
+    id="tsparticles"
+    :particlesInit="particlesInit"
+    :particlesLoaded="particlesLoaded"
+    :options="options"
+    class="particles-bg"
+  />
   <div class="auth-wrapper">
     <!-- 欢迎区 -->
     <div class="welcome-panel" :class="{ 'shift-right': !isLogin }">
-      <h2>{{ isLogin ? '欢迎回来！' : '欢迎注册！' }}</h2>
-      <p>{{ isLogin ? '请输入账号密码登录' : '填写信息注册新账号' }}</p>
+      <h2>{{ isLogin ? "欢迎回来！" : "欢迎注册！" }}</h2>
+      <p>{{ isLogin ? "请输入账号密码登录" : "填写信息注册新账号" }}</p>
       <button @click="toggle">
-        {{ isLogin ? '去注册' : '去登录' }}
+        {{ isLogin ? "去注册" : "去登录" }}
       </button>
     </div>
 
@@ -20,10 +26,10 @@
         <div>
           <label>用户名</label>
           <el-input
-              v-model="form.username"
-              placeholder="请输入用户名"
-              size="large"
-              style="width: 100%"
+            v-model="form.username"
+            placeholder="请输入用户名"
+            size="large"
+            style="width: 100%"
           >
             <template #prefix>
               <el-icon><User /></el-icon>
@@ -33,11 +39,11 @@
         <div>
           <label>密码</label>
           <el-input
-              v-model="form.password"
-              type="password"
-              placeholder="请输入密码"
-              size="large"
-              style="width: 100%"
+            v-model="form.password"
+            type="password"
+            placeholder="请输入密码"
+            size="large"
+            style="width: 100%"
           >
             <template #prefix>
               <el-icon><Lock /></el-icon>
@@ -49,7 +55,10 @@
     </div>
 
     <!-- 注册表单面板 -->
-    <div class="form-panel1 register-panel" :class="{ 'show-center': !isLogin }">
+    <div
+      class="form-panel1 register-panel"
+      :class="{ 'show-center': !isLogin }"
+    >
       <form @submit.prevent="submitForm">
         <h3 class="title-with-icon">
           注册
@@ -58,10 +67,10 @@
         <div>
           <label>用户名</label>
           <el-input
-              v-model="form.username"
-              placeholder="请输入用户名"
-              size="large"
-              style="width: 100%"
+            v-model="form.username"
+            placeholder="请输入用户名"
+            size="large"
+            style="width: 100%"
           >
             <template #prefix>
               <el-icon><User /></el-icon>
@@ -71,11 +80,11 @@
         <div>
           <label>密码</label>
           <el-input
-              v-model="form.password"
-              type="password"
-              placeholder="请输入密码"
-              size="large"
-              style="width: 100%"
+            v-model="form.password"
+            type="password"
+            placeholder="请输入密码"
+            size="large"
+            style="width: 100%"
           >
             <template #prefix>
               <el-icon><Lock /></el-icon>
@@ -85,11 +94,11 @@
         <div>
           <label>确认密码</label>
           <el-input
-              v-model="form.confirmPassword"
-              type="password"
-              placeholder="请确认密码"
-              size="large"
-              style="width: 100%"
+            v-model="form.confirmPassword"
+            type="password"
+            placeholder="请确认密码"
+            size="large"
+            style="width: 100%"
           >
             <template #prefix>
               <el-icon><Lock /></el-icon>
@@ -103,141 +112,173 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
-import {loadSlim} from "tsparticles-slim"
-import axios from "@/axios.js";
-const particlesInit = async engine =>{
-  await loadSlim(engine)
-};
-const particlesLoaded = async (container) =>{
-  console.log("container load",container)
-};
-const options=reactive({
-      fullScreen: {
-        enable: true,
-      },
-      particles: {
-        number: {
-          value: 80,
-          density: {
-            enable: true,
-            area: 800
-          }
-        },
-        color: {
-          value: ["#2EB67D", "#ECB22E", "#E01E5B", "#36C5F0"]
-        },
-        shape: {
-          type: "circle"
-        },
-        opacity: {
-          value: 1
-        },
-        size: {
-          value: { min: 1, max: 10 }
-        },
-        links: {
-          enable: true,
-          distance: 150,
-          color: "#808080",
-          opacity: 0.4,
-          width:2
-        },
-        move: {
-          enable: true,
-          speed: 4,
-          direction: "none",
-          random: false,
-          straight: false,
-          outModes: "out"
-        }
-      },
-      interactivity: {
-        events: {
-          onHover: {
-            enable: true,
-            mode: "grab"
-          },
-          onClick: {
-            enable: true,
-            mode: "push"
-          }
-        },
-        modes: {
-          grab: {
-            distance: 140,
-            links: {
-              opacity: 1
-            }
-          },
-          push: {
-            quantity: 4
-          }
-        }
-      }
-    }
-);
+import { ElMessage } from "element-plus";
+import { ref, reactive } from "vue";
+import { loadSlim } from "tsparticles-slim";
+import request from "@/http/request";
+import { useRouter } from "vue-router";
 
-const isLogin = ref(true)
+const router = useRouter()
+
+const particlesInit = async (engine) => {
+  await loadSlim(engine);
+};
+const particlesLoaded = async (container) => {
+  console.log("container load", container);
+};
+const options = reactive({
+  fullScreen: {
+    enable: true,
+  },
+  particles: {
+    number: {
+      value: 80,
+      density: {
+        enable: true,
+        area: 800,
+      },
+    },
+    color: {
+      value: ["#2EB67D", "#ECB22E", "#E01E5B", "#36C5F0"],
+    },
+    shape: {
+      type: "circle",
+    },
+    opacity: {
+      value: 1,
+    },
+    size: {
+      value: { min: 1, max: 10 },
+    },
+    links: {
+      enable: true,
+      distance: 150,
+      color: "#808080",
+      opacity: 0.4,
+      width: 2,
+    },
+    move: {
+      enable: true,
+      speed: 4,
+      direction: "none",
+      random: false,
+      straight: false,
+      outModes: "out",
+    },
+  },
+  interactivity: {
+    events: {
+      onHover: {
+        enable: true,
+        mode: "grab",
+      },
+      onClick: {
+        enable: true,
+        mode: "push",
+      },
+    },
+    modes: {
+      grab: {
+        distance: 140,
+        links: {
+          opacity: 1,
+        },
+      },
+      push: {
+        quantity: 4,
+      },
+    },
+  },
+});
+
+const isLogin = ref(true);
 
 // 登录/注册表单数据
 const form = ref({
-  username: '',
-  password: '',
-  confirmPassword: '',
-})
+  username: "",
+  password: "",
+  confirmPassword: "",
+});
 
 function toggle() {
-  isLogin.value = !isLogin.value
-  form.value.username = ''
-  form.value.password = ''
-  form.value.confirmPassword = ''
+  isLogin.value = !isLogin.value;
+  form.value.username = "";
+  form.value.password = "";
+  form.value.confirmPassword = "";
 }
 
 async function submitForm() {
-  const {username, password, confirmPassword} = form.value
+  const { username, password, confirmPassword } = form.value;
 
   if (!username || !password) {
-    alert('用户名和密码不能为空！')
-    return
+    ElMessage({
+      message: "用户名和密码不能为空！",
+      type: "error",
+    });
+    return;
   }
 
   if (!isLogin.value) {
     // 注册时校验两次密码
     if (password !== confirmPassword) {
-      alert('两次密码输入不一致！')
-      return
+      ElMessage({
+        message: "两次密码输入不一致！",
+        type: "error",
+      });
+      return;
     }
 
     // 发送注册请求
     try {
-      const res = await axios.post('/users/register', {username, password})
+      const res = await request.post("/users/register", { username, password });
       if (res.data.code === 200) {
-        alert('注册成功，请登录')
-        toggle() // 自动跳转到登录面板
+        ElMessage({
+          message: "注册成功，请登录",
+          type: "success",
+        });
+        toggle(); // 自动跳转到登录面板
       } else {
-        alert(res.data.message || '注册失败')
+        ElMessage({
+          message: res.data.message || "注册失败",
+          type: "error",
+        });
       }
     } catch (err) {
-      alert('注册请求失败')
-      console.error(err)
+      ElMessage({
+        message: "注册请求失败",
+        type: "error",
+      });
+      console.error(err);
     }
-
   } else {
     // 登录请求
     try {
-      const res = await axios.post('/users/login', {username, password})
+      const res = await request.post("/users/login", {
+        username: username,
+        password: password,
+      });
+      console.log(res);
+      router.push('/home')
       if (res.data.code === 200) {
-        const token = res.data.data.token
-        localStorage.setItem('token', token)
-        alert('登录成功，跳转中...')
-        location.href = '/home' // 跳转到主页
+        const token = res.data.data.token;
+        localStorage.setItem("token", token);
+        ElMessage({
+          message: "登录成功，跳转中...",
+          type: "success",
+        });
+        location.href = "/home"; // 跳转到主页
+        
       } else {
-        alert(res.data.message || '登录失败')
+        ElMessage({
+          message: res.data.message || "登录失败",
+          type: "error",
+        });
       }
     } catch (err) {
-      alert('登录请求失败')
-      console.error(err)
+      ElMessage({
+        message: "登录请求失败",
+        type: "error",
+      });
     }
   }
 }
@@ -280,7 +321,7 @@ async function submitForm() {
 
   opacity: 1;
   transform: translateX(0);
-  transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1) ,opacity 1s ease;;
+  transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1), opacity 1s ease;
   z-index: 10;
 }
 
@@ -313,7 +354,6 @@ async function submitForm() {
   color: #c60a30;
 }
 
-
 .form-panel {
   position: absolute;
   top: 50%;
@@ -329,9 +369,7 @@ async function submitForm() {
   overflow-y: auto;
   transform: translateY(-50%) translateX(0);
   opacity: 1;
-  transition:
-      transform 1s cubic-bezier(0.4, 0, 0.2, 1),
-      opacity 1s ease;
+  transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1), opacity 1s ease;
   z-index: 20;
 }
 .form-panel1 {
@@ -348,9 +386,7 @@ async function submitForm() {
   overflow-y: auto;
   transform: translateY(-50%) translateX(0);
   opacity: 1;
-  transition:
-      transform 1s cubic-bezier(0.4, 0, 0.2, 1),
-      opacity 1s ease;
+  transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1), opacity 1s ease;
   z-index: 20;
 }
 .form-panel h3 {
@@ -387,7 +423,7 @@ button[type="submit"] {
   width: 20vw;
   height: 3vw;
   display: block;
-margin-top: 30px;
+  margin-top: 30px;
   font-weight: 700;
   color: white;
   background-color: #e8162e;
@@ -431,5 +467,4 @@ button[type="submit"]:hover {
   transform: translateY(-50%) translateX(0);
   opacity: 1;
 }
-
 </style>
