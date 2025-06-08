@@ -159,6 +159,7 @@ async function fetchUser() {
   }
 }
 async function handleDelete(contentId) {
+
   try {
     const confirmed = window.confirm('确定要删除这条笔记吗？')
     if (!confirmed) return

@@ -33,7 +33,7 @@
             <el-icon><Plus /></el-icon>
             <span>发布</span>
           </el-menu-item>
-          <el-menu-item index="3">
+          <el-menu-item index="/notice">
             <el-icon><Bell /></el-icon>
             <span>通知</span>
           </el-menu-item>
