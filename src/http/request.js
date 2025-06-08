@@ -2,7 +2,7 @@
 import axios from 'axios'
 
 const instance = axios.create({
-    baseURL: 'http://127.0.0.1:4523/m1/6493012-6193202-973503d5/',
+    baseURL: 'http://127.0.0.1:4523/m1/6493012-6193202-973503d5',
     timeout: 5000
 })
 
@@ -17,7 +17,7 @@ instance.interceptors.request.use(config => {
 
 // 响应拦截器
 instance.interceptors.response.use(response => {
-    return response
+    return response.data
 }, error => {
     if (error.response?.status === 401) {
         // token 失效处理
