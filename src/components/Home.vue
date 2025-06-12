@@ -140,7 +140,7 @@ const mainRef = ref<HTMLElement | null>(null)
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
-  background: #f7f7f7;
+  background: #ffffff;
   scrollbar-width: none;        /* Firefox 隐藏滚动条 */
   -ms-overflow-style: none;     /* IE 10+ 隐藏滚动条 */
 }

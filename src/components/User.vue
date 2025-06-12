@@ -34,11 +34,19 @@
               <h3>{{ note.title }}</h3>
               <p>{{ note.description }}</p>
               <div class="meta">
-                <div class="meta-left">
-                  <span>👍 {{ note.likeCount }}</span>
-                  <span>💬 {{ note.commentCount }}</span>
-                  <span>👀 {{ note.viewCount }}</span>
-                  <span>🕒 {{ formatDate(note.createdAt) }}</span>
+                <div class="item-meta">
+                  <span class="meta-item">
+                    <img src="/icons/HeroiconsOutlineHeart.svg" class="icon" /> {{ note.likeCount }}
+                  </span>
+                            <span class="meta-item">
+                    <img src="/icons/HeroiconsOutlineChatBubbleLeftEllipsis.svg" class="icon" /> {{ note.commentCount }}
+                  </span>
+                  <span class="meta-item">
+                    <img src="/icons/HeroiconsOutlineEye.svg" class="icon" /> {{ note.viewCount }}
+                  </span>
+                  <span class="meta-item" style="white-space: nowrap">
+                    <img src="/icons/HeroiconsOutlineClock.svg" class="icon" /> {{ note.createdAt }}
+                  </span>
                 </div>
                 <el-button type="text" @click="handleDelete(note.id)"  style="color: red; font-size: 20px; padding: 20px 12px;">
                   删除
@@ -211,7 +219,7 @@ function formatDate(dateStr) {
 }
 
 .header {
-  height: 150px;
+  height: 100px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -264,5 +272,26 @@ function formatDate(dateStr) {
 .custom-btn.active {
   background-color: #e80f28;
   color: #fff;
+}
+.item-meta {
+  width: 230px;
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 5px;
+
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.icon {
+  width: 16px;
+  height: 16px;
 }
 </style>
