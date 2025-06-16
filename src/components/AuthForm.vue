@@ -1,11 +1,6 @@
 <template>
-  <Particles
-    id="tsparticles"
-    :particlesInit="particlesInit"
-    :particlesLoaded="particlesLoaded"
-    :options="options"
-    class="particles-bg"
-  />
+  <Particles id="tsparticles" :particlesInit="particlesInit" :particlesLoaded="particlesLoaded" :options="options"
+    class="particles-bg" />
   <div class="auth-wrapper">
     <!-- 欢迎区 -->
     <div class="welcome-panel" :class="{ 'shift-right': !isLogin }">
@@ -25,28 +20,21 @@
         </h3>
         <div>
           <label>用户名</label>
-          <el-input
-            v-model="form.username"
-            placeholder="请输入用户名"
-            size="large"
-            style="width: 100%"
-          >
+          <el-input v-model="form.username" placeholder="请输入用户名" size="large" style="width: 100%">
             <template #prefix>
-              <el-icon><User /></el-icon>
+              <el-icon>
+                <User />
+              </el-icon>
             </template>
           </el-input>
         </div>
         <div>
           <label>密码</label>
-          <el-input
-            v-model="form.password"
-            type="password"
-            placeholder="请输入密码"
-            size="large"
-            style="width: 100%"
-          >
+          <el-input v-model="form.password" type="password" placeholder="请输入密码" size="large" style="width: 100%">
             <template #prefix>
-              <el-icon><Lock /></el-icon>
+              <el-icon>
+                <Lock />
+              </el-icon>
             </template>
           </el-input>
         </div>
@@ -55,10 +43,7 @@
     </div>
 
     <!-- 注册表单面板 -->
-    <div
-      class="form-panel1 register-panel"
-      :class="{ 'show-center': !isLogin }"
-    >
+    <div class="form-panel1 register-panel" :class="{ 'show-center': !isLogin }">
       <form @submit.prevent="submitForm">
         <h3 class="title-with-icon">
           注册
@@ -66,42 +51,31 @@
         </h3>
         <div>
           <label>用户名</label>
-          <el-input
-            v-model="form.username"
-            placeholder="请输入用户名"
-            size="large"
-            style="width: 100%"
-          >
+          <el-input v-model="form.username" placeholder="请输入用户名" size="large" style="width: 100%">
             <template #prefix>
-              <el-icon><User /></el-icon>
+              <el-icon>
+                <User />
+              </el-icon>
             </template>
           </el-input>
         </div>
         <div>
           <label>密码</label>
-          <el-input
-            v-model="form.password"
-            type="password"
-            placeholder="请输入密码"
-            size="large"
-            style="width: 100%"
-          >
+          <el-input v-model="form.password" type="password" placeholder="请输入密码" size="large" style="width: 100%">
             <template #prefix>
-              <el-icon><Lock /></el-icon>
+              <el-icon>
+                <Lock />
+              </el-icon>
             </template>
           </el-input>
         </div>
         <div>
           <label>确认密码</label>
-          <el-input
-            v-model="form.confirmPassword"
-            type="password"
-            placeholder="请确认密码"
-            size="large"
-            style="width: 100%"
-          >
+          <el-input v-model="form.confirmPassword" type="password" placeholder="请确认密码" size="large" style="width: 100%">
             <template #prefix>
-              <el-icon><Lock /></el-icon>
+              <el-icon>
+                <Lock />
+              </el-icon>
             </template>
           </el-input>
         </div>
@@ -253,11 +227,12 @@ async function submitForm() {
   } else {
     // 登录请求
     try {
-      const res = await request.post("/users/login", {
-        username: username,
-        password: password,
-      });
-      console.log(res);
+      // 暂时注释掉
+      // const res = await request.post("/users/login", {
+      //   username: username,
+      //   password: password,
+      // });
+      // console.log(res);
       router.push('/home')
       if (res.data.code === 200) {
         const token = res.data.data.token;
@@ -267,7 +242,7 @@ async function submitForm() {
           type: "success",
         });
         location.href = "/home"; // 跳转到主页
-        
+
       } else {
         ElMessage({
           message: res.data.message || "登录失败",
@@ -293,6 +268,7 @@ async function submitForm() {
   height: 100%;
   z-index: 0;
 }
+
 .auth-wrapper {
   width: 100vw;
   height: 100vh;
@@ -333,10 +309,12 @@ async function submitForm() {
   font-size: 2.5rem;
   margin-bottom: 20px;
 }
+
 .welcome-panel p {
   font-size: 1.2rem;
   margin-bottom: 30px;
 }
+
 .welcome-panel button {
   align-self: center;
   padding: 14px 80px;
@@ -372,6 +350,7 @@ async function submitForm() {
   transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1), opacity 1s ease;
   z-index: 20;
 }
+
 .form-panel1 {
   position: absolute;
   top: 50%;
@@ -389,6 +368,7 @@ async function submitForm() {
   transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1), opacity 1s ease;
   z-index: 20;
 }
+
 .form-panel h3 {
   font-size: 2rem;
   margin-bottom: 30px;
@@ -415,6 +395,7 @@ input {
   outline: none;
   transition: border-color 0.3s;
 }
+
 input:focus {
   border-color: #0a0a0b;
 }
@@ -436,6 +417,7 @@ button[type="submit"] {
 button[type="submit"]:hover {
   background-color: #d52b4a;
 }
+
 .title-with-icon {
   display: flex;
   align-items: center;
