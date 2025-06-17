@@ -9,20 +9,20 @@
         </div>
       </el-header>
 
-      <div class="footer-buttons">
-        <button
-            :class="['custom-btn', selected === 'note' ? 'active' : '']"
-            @click="selected = 'note'"
-        >
-          笔记
-        </button>
-        <button
-            :class="['custom-btn', selected === 'like' ? 'active' : '']"
-            @click="selected = 'like'"
-        >
-          点赞
-        </button>
-      </div>
+<!--      <div class="footer-buttons">-->
+<!--        <button-->
+<!--            :class="['custom-btn', selected === 'note' ? 'active' : '']"-->
+<!--            @click="selected = 'note'"-->
+<!--        >-->
+<!--          笔记-->
+<!--        </button>-->
+<!--        <button-->
+<!--            :class="['custom-btn', selected === 'like' ? 'active' : '']"-->
+<!--            @click="selected = 'like'"-->
+<!--        >-->
+<!--          点赞-->
+<!--        </button>-->
+<!--      </div>-->
 
       <el-divider />
 
@@ -34,11 +34,19 @@
               <h3>{{ note.title }}</h3>
               <p>{{ note.description }}</p>
               <div class="meta">
-                <div class="meta-left">
-                  <span>👍 {{ note.likeCount }}</span>
-                  <span>💬 {{ note.commentCount }}</span>
-                  <span>👀 {{ note.viewCount }}</span>
-                  <span>🕒 {{ formatDate(note.createdAt) }}</span>
+                <div class="item-meta">
+                  <span class="meta-item">
+                    <img src="/icons/HeroiconsOutlineHeart.svg" class="icon" /> {{ note.likeCount }}
+                  </span>
+                  <span class="meta-item">
+                    <img src="/icons/HeroiconsOutlineChatBubbleLeftEllipsis.svg" class="icon" /> {{ note.commentCount }}
+                  </span>
+                  <span class="meta-item">
+                    <img src="/icons/HeroiconsOutlineEye.svg" class="icon" /> {{ note.viewCount }}
+                  </span>
+                  <span class="meta-item" style="white-space: nowrap">
+                    <img src="/icons/HeroiconsOutlineClock.svg" class="icon" /> {{ note.createdAt }}
+                  </span>
                 </div>
                 <el-button type="text" @click="handleDelete(note.id)"  style="color: red; font-size: 20px; padding: 20px 12px;">
                   删除
@@ -93,48 +101,13 @@ watch(selected, (val) => {
 })
 async function fetchNotes() {
   try {
-    // const res = await request.get('/content/my', {
-    //   params: {
-    //     pageNum: pageNum.value,
-    //     pageSize: pageSize.value
-    //   }
-    // })
-    //const result=res.data;
-    const result = {
-      "code": 200,
-      "message": "操作成功",
-      "data": {
-        "records": [
-          {
-            "id": 2,
-            "userId": 1,
-            "title": "我的旅行照片2（已修改）",
-            "type": "IMAGE",
-            "description": "看到一些小动物,好可爱！",
-            "likeCount": 0,
-            "commentCount": 0,
-            "viewCount": 0,
-            "isDeleted": false,
-            "createdAt": "2025-06-01T23:15:38",
-            "updatedAt": "2025-06-01T23:25:13"
-          },
-          {
-            "id": 1,
-            "userId": 1,
-            "title": "我的旅行照片",
-            "type": "IMAGE",
-            "description": "出去玩拍的风景照！",
-            "likeCount": 0,
-            "commentCount": 0,
-            "viewCount": 0,
-            "isDeleted": false,
-            "createdAt": "2025-06-01T22:48:34",
-            "updatedAt": "2025-06-02T00:10:46"
-          }
-        ],
-        "total": 20
+    const res = await request.get('/contents/my', {
+      params: {
+        pageNum: pageNum.value,
+        pageSize: pageSize.value
       }
-    }
+    })
+    const result=res.data;
     if (result.code === 200) {
       notes.value = result.data.records
       total.value = result.data.total
@@ -147,8 +120,9 @@ async function fetchNotes() {
 }
 async function fetchUser() {
   try {
-    const res = await request.get('/user/me')
+    const res = await request.get('/users/me')
     const result = res.data
+    console.log(res)
     if (result.code === 200) {
       user.value = result.data
     } else {
@@ -158,12 +132,13 @@ async function fetchUser() {
     console.error('请求异常:', error)
   }
 }
-async function handleDelete(id) {
+async function handleDelete(contentId) {
+
   try {
     const confirmed = window.confirm('确定要删除这条笔记吗？')
     if (!confirmed) return
 
-    const res = await request.delete(`contentId`)
+    const res = await request.delete(`contents/${contentId}/delete`)
     const result = res.data
     if (result.code === 200) {
       // 删除成功后重新拉取数据
@@ -196,6 +171,7 @@ function formatDate(dateStr) {
 .common-layout {
   width: 100%;
   height: 100vh;
+  background-color: white;
 }
 
 .layout-container {
@@ -210,7 +186,7 @@ function formatDate(dateStr) {
 }
 
 .header {
-  height: 150px;
+  height: 100px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -263,5 +239,26 @@ function formatDate(dateStr) {
 .custom-btn.active {
   background-color: #e80f28;
   color: #fff;
+}
+.item-meta {
+  width: 230px;
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 5px;
+
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.icon {
+  width: 16px;
+  height: 16px;
 }
 </style>

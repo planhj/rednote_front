@@ -3,3 +3,16 @@
     --el-color-primary-light-3: #f47777 !important;
     --el-color-primary-dark-2: #d43c3c !important;
 }
+html, body, #app {
+    height: 100%;
+    margin: 0;
+}
+.app-layout {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.app-content {
+    flex: 1;
+    display: flex;
+}

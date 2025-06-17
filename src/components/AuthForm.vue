@@ -257,16 +257,15 @@ async function submitForm() {
         username: username,
         password: password,
       });
-      console.log(res);
-      router.push('/home')
+      console.log(res.data.code);
       if (res.data.code === 200) {
+        await router.push('/home')
         const token = res.data.data.token;
         localStorage.setItem("token", token);
         ElMessage({
-          message: "登录成功，跳转中...",
+          message: "登录成功",
           type: "success",
         });
-        location.href = "/home"; // 跳转到主页
         
       } else {
         ElMessage({
@@ -285,10 +284,11 @@ async function submitForm() {
 </script>
 
 <style scoped>
+
 .particles-bg {
-  position: fixed;
   top: 0;
   left: 0;
+  position: fixed;
   width: 100%;
   height: 100%;
   z-index: 0;
@@ -298,7 +298,6 @@ async function submitForm() {
   height: 100vh;
   position: relative;
   overflow: hidden;
-  display: flex;
   user-select: none;
   z-index: 1;
 }
@@ -311,14 +310,12 @@ async function submitForm() {
   height: 100vh;
   background: linear-gradient(135deg, #e8162e 0%, #f3403a 100%);
   color: white;
-  padding: 40px;
-  box-sizing: border-box;
 
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   justify-content: center;
   text-align: center;
-
   opacity: 1;
   transform: translateX(0);
   transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1), opacity 1s ease;
