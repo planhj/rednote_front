@@ -15,6 +15,9 @@
           <el-button icon="Search" class="search-btn" circle />
         </div>
       </div>
+      <div class="right">
+        <span v-if="user">{{ user.username }}</span>
+      </div>
     </div>
 
 
@@ -28,20 +31,22 @@
           router
         >
           <el-menu-item index="/find">
-            <el-icon><Search /></el-icon>
+            <el-icon>
+              <Search />
+            </el-icon>
             <span>发现</span>
           </el-menu-item>
           <el-menu-item index="/publish">
-            <el-icon><Plus /></el-icon>
+            <el-icon>
+              <Plus />
+            </el-icon>
             <span>发布</span>
           </el-menu-item>
-          <el-menu-item index="/notice">
-            <el-icon><Bell /></el-icon>
-            <span>通知</span>
-          </el-menu-item>
-          <el-menu-item index="/user">
-            <el-icon><House /></el-icon>
-            <span>我的</span>
+          <el-menu-item index="/admin">
+            <el-icon>
+              <House />
+            </el-icon>
+            <span>管理</span>
           </el-menu-item>
         </el-menu>
       </div>
@@ -54,12 +59,30 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { ref, onMounted } from "vue"
 import {useRoute} from "vue-router";
+import request from '@/http/request'
 const searchText = ref("")
-const mainRef = ref<HTMLElement | null>(null)
+const user = ref(null)
 const route = useRoute();
+async function fetchUser() {
+  try {
+    const res = await request.get('/users/me')
+    const result = res.data
+    console.log(res)
+    if (result.code === 200) {
+      user.value = result.data
+    } else {
+      console.error('接口返回错误:', result.message)
+    }
+  } catch (error) {
+    console.error('请求异常:', error)
+  }
+}
+onMounted(() => {
+  fetchUser()
+})
 </script>
 
 <style scoped>
@@ -68,7 +91,6 @@ const route = useRoute();
   height: 100vh;
   display: flex;
   flex-direction: column;
-
 }
 
 .content-area {
@@ -91,7 +113,6 @@ const route = useRoute();
   padding: 0 24px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
-
 .topbar .left {
   flex: 0 0 auto;
 }
@@ -101,11 +122,17 @@ const route = useRoute();
   display: flex;
   justify-content: center;
 }
-
+.topbar .right {
+  flex: 0 0 auto;
+  margin-right: 50px;
+  font-size: 20px;
+  color: #333;
+}
 .logo {
   width: 80px;
   height: 40px;
 }
+
 .search-container {
   display: flex;
   align-items: center;
@@ -116,11 +143,13 @@ const route = useRoute();
   flex: 1;
   margin: 0 24px;
 }
+
 .search-input :deep(.el-input__wrapper) {
   background-color: transparent !important;
   border: none !important;
   box-shadow: none !important;
 }
+
 .search-btn {
   background: transparent !important;
   border: none !important;
@@ -129,7 +158,6 @@ const route = useRoute();
 
 .sidebar {
   width: 250px;
-  height: 100%;
   background: #fff;
   border-right: 1px solid #eee;
   box-sizing: border-box;
@@ -148,5 +176,4 @@ const route = useRoute();
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
-
 </style>

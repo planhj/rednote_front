@@ -42,6 +42,7 @@
     <ContentPreview
         v-model:visible="previewVisible"
         :content-id="previewId"
+        @updateDetail="handleUpdateDetail"
     />
   </div>
 </template>
@@ -99,7 +100,7 @@ const loadMore = async () => {
   loading.value = true
   try {
     const res = await request.get('contents/recommended', {
-      params: { pageNum: pageNum.value, pageSize }
+      params: {pageNum: pageNum.value, pageSize}
     })
     if (res.data.code === 200) {
       const records = await Promise.all(
@@ -142,7 +143,7 @@ const handleScroll = (e) => {
 
 const scrollToTop = () => {
   if (container.value) {
-    container.value.scrollTo({ top: 0, behavior: 'smooth' })
+    container.value.scrollTo({top: 0, behavior: 'smooth'})
   }
 }
 
@@ -159,6 +160,14 @@ const loadUntilScrollable = async () => {
       hasMore.value
   ) {
     await loadUntilScrollable()
+  }
+}
+const handleUpdateDetail = (newData) => {
+  const item = contentList.value.find(i => i.id === newData.id)
+  if (item) {
+    item.likeCount = newData.likeCount
+    item.commentCount = newData.commentCount
+    item.viewCount = newData.viewCount
   }
 }
 
@@ -197,7 +206,9 @@ onUnmounted(() => {
   height: 300px;
   object-fit: cover;
   transition: filter 0.3s ease;
+  border-radius: 10px;
 }
+
 .item-img:hover {
   filter: brightness(70%);
 }
@@ -256,6 +267,7 @@ onUnmounted(() => {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   transition: all 0.3s ease;
 }
+
 .back-to-top:hover {
   background-color: rgba(232, 15, 40, 0.87);
 }
