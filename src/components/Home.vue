@@ -12,11 +12,11 @@
               clearable
               class="search-input"
           />
-          <el-button icon="Search" class="search-btn" circle />
+          <el-button icon="Search" class="search-btn" circle @click="search"/>
         </div>
       </div>
       <div class="right">
-        <span v-if="user">{{ user.username }}</span>
+        <span v-if="user" style="color: red; cursor: pointer;" @click="showUserDialog">{{ user.username }}</span>
       </div>
     </div>
 
@@ -30,7 +30,7 @@
           :collapse="false"
           router
         >
-          <el-menu-item index="/find">
+          <el-menu-item index="/find" @click="goFind">
             <el-icon>
               <Search />
             </el-icon>
@@ -42,30 +42,74 @@
             </el-icon>
             <span>发布</span>
           </el-menu-item>
-          <el-menu-item index="/admin">
-            <el-icon>
-              <House />
-            </el-icon>
-            <span>管理</span>
+          <el-menu-item
+              index="/admin"
+              :class="{ disabled: user && user.role !== 'ADMIN' }"
+          >
+
+          <img src="/icons/MaterialSymbolsLightManageAccountsOutline.svg" class="icon" />
+            <span>管理用户</span>
           </el-menu-item>
         </el-menu>
       </div>
 
       <!-- 主内容区域 -->
       <div class="main-content" ref="mainRef">
-        <router-view />
+        <router-view v-slot="{ Component }">
+          <component :is="Component" ref="findRef" />
+        </router-view>
+
       </div>
     </div>
   </div>
+  <el-dialog
+      v-model="userDialogVisible"
+      title="用户信息"
+      width="400px"
+  >
+    <template #header>
+      <div style="text-align: center; font-weight: bold;">
+        用户信息
+      </div>
+    </template>
+
+    <div v-if="user">
+      <p><strong>ID：</strong>{{ user.id }}</p>
+      <p><strong>用户名：</strong>{{ user.username }}</p>
+      <p><strong>角色：</strong>{{ user.role }}</p>
+      <p><strong>注册时间：</strong>{{ user.createdAt }}</p>
+      <p><strong>内容数量：</strong>{{ user.contentCount }}</p>
+      <p><strong>评论数量：</strong>{{ user.commentCount }}</p>
+      <p><strong>总浏览量：</strong>{{ user.totalViewCount }}</p>
+      <p><strong>收到的评论：</strong>{{ user.receivedCommentCount }}</p>
+      <p><strong>收到的点赞：</strong>{{ user.receivedLikeCount }}</p>
+    </div>
+  </el-dialog>
+
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue"
-import {useRoute} from "vue-router";
+import {ref, onMounted, nextTick} from "vue"
 import request from '@/http/request'
+import {ElMessage} from "element-plus";
+import { useRouter, useRoute } from "vue-router";
 const searchText = ref("")
 const user = ref(null)
 const route = useRoute();
+const router = useRouter();
+const findRef = ref(null)
+const userDialogVisible = ref(false);
+function showUserDialog() {
+  userDialogVisible.value = true;
+}
+function goFind() {
+  searchText.value = ''
+  if (route.path !== '/find') {
+    router.push('/find')
+  }else{
+    router.push({ path: '/find', query: { t: Date.now() } })
+  }
+}
 async function fetchUser() {
   try {
     const res = await request.get('/users/me')
@@ -78,6 +122,17 @@ async function fetchUser() {
     }
   } catch (error) {
     console.error('请求异常:', error)
+  }
+}
+function search() {
+  if (route.path !== '/find') {
+    router.push('/find').then(() => {
+      nextTick(() => {
+        findRef.value?.doSearch(searchText.value)
+      })
+    })
+  } else {
+    findRef.value?.doSearch(searchText.value)
   }
 }
 onMounted(() => {
@@ -124,7 +179,7 @@ onMounted(() => {
 }
 .topbar .right {
   flex: 0 0 auto;
-  margin-right: 50px;
+  margin-right: 30px;
   font-size: 20px;
   color: #333;
 }
@@ -161,7 +216,7 @@ onMounted(() => {
   background: #fff;
   border-right: 1px solid #eee;
   box-sizing: border-box;
-  padding-top: 20px;
+  padding-top: 25px;
   flex-shrink: 0;
 }
 
@@ -175,5 +230,10 @@ onMounted(() => {
   background: #ffffff;
   scrollbar-width: none;
   -ms-overflow-style: none;
+}
+.icon {
+  width: 24px;
+  height: 24px;
+  margin-right: 5px;
 }
 </style>

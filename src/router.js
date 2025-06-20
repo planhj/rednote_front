@@ -4,6 +4,7 @@ import Home from "./components/Home.vue";
 import Find from "./components/Find.vue";
 import Publish from "@/components/Publish.vue";
 import Admin from "@/components/Admin.vue";
+import {ElMessage} from "element-plus";
 const routes = [
   {
     path: "/",
@@ -33,6 +34,7 @@ const routes = [
       {
         path: "/admin",
         component: Admin,
+        meta: { requiresAdmin: true }
       },
       {
         path: "",
@@ -46,5 +48,13 @@ const router = createRouter({
   history: createWebHistory(),
   routes,
 });
-
+router.beforeEach((to, from, next) => {
+  const role = localStorage.getItem('role')
+  if (to.meta.requiresAdmin && role !== 'ADMIN') {
+    ElMessage.warning('权限不足，无法访问管理页面')
+    next(false) // 阻止跳转
+  } else {
+    next() // 放行
+  }
+})
 export default router;

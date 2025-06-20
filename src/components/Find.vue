@@ -42,16 +42,20 @@
     <ContentPreview
         v-model:visible="previewVisible"
         :content-id="previewId"
+        :id-list="contentList.map(item => item.id)"
+        @switchNote="previewId = $event"
         @updateDetail="handleUpdateDetail"
+        @deleted="fetchList"
     />
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, nextTick } from 'vue'
+import {ref, onMounted, onUnmounted, nextTick, watch} from 'vue'
 import ContentPreview from '@/components/ContentPreview.vue'
 import request from '@/http/request'
-
+import {useRoute} from "vue-router";
+const keyword = ref("")
 const container = ref(null)
 const contentList = ref([])
 const loading = ref(false)
@@ -99,14 +103,33 @@ const loadMore = async () => {
   if (loading.value || !hasMore.value) return
   loading.value = true
   try {
-    const res = await request.get('contents/recommended', {
-      params: {pageNum: pageNum.value, pageSize}
-    })
+    let res
+    if (keyword.value) {
+      console.log(keyword.value)
+      res = await request.get('/contents/es/search', {
+        params: {
+          keyword: keyword.value,
+          pageNum: pageNum.value,
+          pageSize
+        }
+      })
+      console.log(res)
+    } else {
+      res = await request.get('/contents/recommended', {
+        params: {
+          pageNum: pageNum.value,
+          pageSize
+        }
+      })
+    }
     if (res.data.code === 200) {
       const records = await Promise.all(
           res.data.data.records.map(async (item) => {
             const url = item.fileUrls[0]
-            if (!url) return item
+            if (!url) {
+              item.thumb = '/default.png'
+              return item
+            }
             const fullUrl = `${BASE_URL}${url}`
             item.thumb = isImage(fullUrl)
                 ? fullUrl
@@ -116,7 +139,7 @@ const loadMore = async () => {
       )
       contentList.value.push(...records)
       pageNum.value++
-      if (contentList.value.length >= res.data.data.total) {
+      if (contentList.value.length >= res.data.data.total||records.length < pageSize) {
         hasMore.value = false
       }
     }
@@ -171,6 +194,23 @@ const handleUpdateDetail = (newData) => {
   }
 }
 
+const fetchList = async () => {
+  keyword.value = ''
+  pageNum.value = 1
+  hasMore.value = true
+  contentList.value = []
+  await loadUntilScrollable()
+}
+const doSearch = async (newKeyword) => {
+  keyword.value = newKeyword
+  pageNum.value = 1
+  hasMore.value = true
+  contentList.value = []
+  await loadUntilScrollable()
+}
+
+// 暴露方法
+defineExpose({ fetchList,doSearch })
 onMounted(() => {
   loadUntilScrollable()
   if (container.value) {
@@ -183,6 +223,13 @@ onUnmounted(() => {
     container.value.removeEventListener('scroll', handleScroll)
   }
 })
+const route = useRoute()
+watch(
+    () => route.query.t,
+    () => {
+      fetchList()
+    }
+)
 </script>
 
 <style scoped>
@@ -246,12 +293,14 @@ onUnmounted(() => {
 
 .loading,
 .no-more {
+  flex-basis: 100%;
   width: 100%;
   text-align: center;
   padding: 16px;
   font-size: 14px;
   color: #999;
 }
+
 
 .back-to-top {
   position: fixed;

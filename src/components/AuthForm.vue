@@ -236,7 +236,9 @@ async function submitForm() {
       if (res.data.code === 200) {
         await router.push('/home')
         const token = res.data.data.token;
+        const role = res.data.data.role;
         localStorage.setItem("token", token);
+        localStorage.setItem('role',role );
         ElMessage({
           message: "登录成功",
           type: "success",
