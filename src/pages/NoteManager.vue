@@ -64,7 +64,7 @@
 
         <div style="margin: 12px 0 8px">图片列表</div>
         <el-upload
-          action="http://192.168.17.17:8080/files/upload/multi"
+          action="http://localhost:8080/files/upload/multi"
           list-type="picture-card"
           :on-success="handleEditUploadSuccess"
           :limit="18"
@@ -97,7 +97,7 @@ import {
 import { ElMessage } from "element-plus";
 import request from "@/http/request";
 
-const BaseUrl = "http://192.168.17.17:8080";
+const BaseUrl = "http://localhost:8080";
 
 const noteList = ref([]);
 const total = ref(0);
@@ -113,6 +113,7 @@ const fetchNotes = async () => {
         pageSize: pageSize.value,
       },
     });
+    console.log("我的内容",res)
     if (res.data.code === 200) {
       noteList.value = res.data.data.records;
       total.value = res.data.data.records.length;

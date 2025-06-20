@@ -12,7 +12,7 @@
       <el-dropdown trigger="hover" @command="handleCommand">
         <div class="right" @click.prevent>
           <img src="@/assets/image.png" class="avatar" />
-          <div class="name">Kevin</div>
+          <div class="name">{{ user?.username }}</div>
           <el-icon><ArrowDown /></el-icon>
         </div>
         <template #dropdown>
@@ -37,10 +37,6 @@
           :collapse="false"
           router
         >
-          <el-menu-item index="/publish/myhome">
-            <el-icon><House /></el-icon>
-            <span>首页</span>
-          </el-menu-item>
           
           <el-menu-item index="/publish/notemanager">
             <el-icon><Tickets /></el-icon>
@@ -65,22 +61,39 @@
 
 <script setup lang="ts">
 import { ElMessage } from "element-plus";
+import request from "@/http/request"
 import { ArrowDown, Plus, Search, House } from "@element-plus/icons-vue";
 import { useRouter } from "vue-router";
-
+import {onMounted, ref} from "vue";
+const user = ref(null)
 const handleCommand = (command: string) => {
   if (command === "logout") {
     ElMessage.success("已退出登录");
     // 清除 token 跳转登录页
-    // localStorage.removeItem('token')
-    // window.location.href = '/login'
+    localStorage.removeItem('token')
+    window.location.href = '/'
   }
 };
-
+async function fetchUser() {
+  try {
+    const res = await request.get('/users/me')
+    const result = res.data
+    if (result.code === 200) {
+      user.value = result.data
+    } else {
+      console.error('接口返回错误:', result.message)
+    }
+  } catch (error) {
+    console.error('请求异常:', error)
+  }
+}
 const router = useRouter();
 const toPublish = ()=>{
   router.push('/publish/new')
 }
+onMounted(() => {
+  fetchUser()
+})
 </script>
 
 <style scoped>

@@ -14,7 +14,7 @@
           (1/18) 支持拖拽排序
         </div>
         <el-upload
-          action="http://192.168.17.17:8080/files/upload/multi"
+          action="http://localhost:8080/files/upload/multi"
           list-type="picture-card"
           :limit="18"
           v-model:file-list="fileList"
@@ -68,7 +68,7 @@ const router = useRouter();
 const title = ref("");
 const description = ref("");
 
-const BaseUrl = "http://192.168.17.17:8080";
+const BaseUrl = "http://localhost:8080";
 
 const fileList = ref<any[]>([]);
 
@@ -134,7 +134,7 @@ const submitPost = async () => {
   try {
     await request.post("/contents/create", payload);
     ElMessage.success("发布成功");
-    router.push("/home/find");
+    await router.push("/home");
   } catch (error) {
     console.error("发布失败：", error);
     ElMessage.error("发布失败，请稍后重试");

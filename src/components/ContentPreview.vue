@@ -251,10 +251,11 @@ const deleteContent = async () => {
   if (!detail.value?.id) return
   if (!confirm('确认要删除该内容吗？')) return
   try {
-    await request.delete(`/admin/contents/${detail.value.id}`)
+    const id = detail.value.id
+    await request.delete(`/admin/contents/${id}`)
     alert('删除成功')
     handleClose()
-    emit('deleted', detail.value.id)
+    emit('deleted', id)
   } catch (e) {
     console.error(e)
     alert('删除失败')

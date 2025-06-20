@@ -16,7 +16,7 @@
         </div>
       </div>
       <div class="right">
-        <span v-if="user" style="color: red; cursor: pointer;" @click="showUserDialog">{{ user.username }}</span>
+        <span v-if="user" style="color: #0a0a0b; cursor: pointer;" @click="showUserDialog">{{ user.username }}</span>
       </div>
     </div>
 
@@ -30,7 +30,7 @@
           :collapse="false"
           router
         >
-          <el-menu-item index="/find" @click="goFind">
+          <el-menu-item index="/home/find" @click="goFind">
             <el-icon>
               <Search />
             </el-icon>
@@ -43,7 +43,7 @@
             <span>发布</span>
           </el-menu-item>
           <el-menu-item
-              index="/admin"
+              index="admin"
               :class="{ disabled: user && user.role !== 'ADMIN' }"
           >
 
@@ -104,17 +104,16 @@ function showUserDialog() {
 }
 function goFind() {
   searchText.value = ''
-  if (route.path !== '/find') {
-    router.push('/find')
+  if (route.path !== '/home/find') {
+    router.push('/home/find')
   }else{
-    router.push({ path: '/find', query: { t: Date.now() } })
+    router.push({ path: '/home/find', query: { t: Date.now() } })
   }
 }
 async function fetchUser() {
   try {
     const res = await request.get('/users/me')
     const result = res.data
-    console.log(res)
     if (result.code === 200) {
       user.value = result.data
     } else {
@@ -125,8 +124,8 @@ async function fetchUser() {
   }
 }
 function search() {
-  if (route.path !== '/find') {
-    router.push('/find').then(() => {
+  if (route.path !== '/home/find') {
+    router.push('/home/find').then(() => {
       nextTick(() => {
         findRef.value?.doSearch(searchText.value)
       })

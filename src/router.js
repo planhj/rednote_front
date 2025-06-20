@@ -43,6 +43,7 @@ const routes = [
   },
   {
     path: "/publish",
+    redirect: '/publish/notemanager',
     component: publish,
     children: [
       {

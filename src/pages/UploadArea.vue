@@ -47,7 +47,7 @@
         <el-upload
           ref="imageUploadRef"
           class="upload-area"
-          action="http://192.168.17.17:8080/files/upload/multi"
+          action="http://localhost:8080/files/upload/multi"
           list-type="picture-card"
           :limit="5"
           name="files"

@@ -267,7 +267,6 @@ async function submitForm() {
         username: username,
         password: password,
       });
-      console.log(res);
       if (res.data.code === 200) {
         await router.push("/home/find");
         const token = res.data.data.token;
