@@ -1,6 +1,11 @@
 <template>
-  <Particles id="tsparticles" :particlesInit="particlesInit" :particlesLoaded="particlesLoaded" :options="options"
-    class="particles-bg" />
+  <Particles
+    id="tsparticles"
+    :particlesInit="particlesInit"
+    :particlesLoaded="particlesLoaded"
+    :options="options"
+    class="particles-bg"
+  />
   <div class="auth-wrapper">
     <!-- 欢迎区 -->
     <div class="welcome-panel" :class="{ 'shift-right': !isLogin }">
@@ -20,7 +25,12 @@
         </h3>
         <div>
           <label>用户名</label>
-          <el-input v-model="form.username" placeholder="请输入用户名" size="large" style="width: 100%">
+          <el-input
+            v-model="form.username"
+            placeholder="请输入用户名"
+            size="large"
+            style="width: 100%"
+          >
             <template #prefix>
               <el-icon>
                 <User />
@@ -30,7 +40,13 @@
         </div>
         <div>
           <label>密码</label>
-          <el-input v-model="form.password" type="password" placeholder="请输入密码" size="large" style="width: 100%">
+          <el-input
+            v-model="form.password"
+            type="password"
+            placeholder="请输入密码"
+            size="large"
+            style="width: 100%"
+          >
             <template #prefix>
               <el-icon>
                 <Lock />
@@ -43,7 +59,10 @@
     </div>
 
     <!-- 注册表单面板 -->
-    <div class="form-panel1 register-panel" :class="{ 'show-center': !isLogin }">
+    <div
+      class="form-panel1 register-panel"
+      :class="{ 'show-center': !isLogin }"
+    >
       <form @submit.prevent="submitForm">
         <h3 class="title-with-icon">
           注册
@@ -51,7 +70,12 @@
         </h3>
         <div>
           <label>用户名</label>
-          <el-input v-model="form.username" placeholder="请输入用户名" size="large" style="width: 100%">
+          <el-input
+            v-model="form.username"
+            placeholder="请输入用户名"
+            size="large"
+            style="width: 100%"
+          >
             <template #prefix>
               <el-icon>
                 <User />
@@ -61,7 +85,13 @@
         </div>
         <div>
           <label>密码</label>
-          <el-input v-model="form.password" type="password" placeholder="请输入密码" size="large" style="width: 100%">
+          <el-input
+            v-model="form.password"
+            type="password"
+            placeholder="请输入密码"
+            size="large"
+            style="width: 100%"
+          >
             <template #prefix>
               <el-icon>
                 <Lock />
@@ -71,7 +101,13 @@
         </div>
         <div>
           <label>确认密码</label>
-          <el-input v-model="form.confirmPassword" type="password" placeholder="请确认密码" size="large" style="width: 100%">
+          <el-input
+            v-model="form.confirmPassword"
+            type="password"
+            placeholder="请确认密码"
+            size="large"
+            style="width: 100%"
+          >
             <template #prefix>
               <el-icon>
                 <Lock />
@@ -92,7 +128,7 @@ import { loadSlim } from "tsparticles-slim";
 import request from "@/http/request";
 import { useRouter } from "vue-router";
 
-const router = useRouter()
+const router = useRouter();
 
 const particlesInit = async (engine) => {
   await loadSlim(engine);
@@ -227,16 +263,17 @@ async function submitForm() {
   } else {
     // 登录请求
     try {
-
       const res = await request.post("/users/login", {
         username: username,
         password: password,
       });
-
+      console.log(res);
       if (res.data.code === 200) {
-        await router.push('/home')
+        await router.push("/home/find");
         const token = res.data.data.token;
+        const role = res.data.data.role;
         localStorage.setItem("token", token);
+        localStorage.setItem('role',role );
         ElMessage({
           message: "登录成功",
           type: "success",
@@ -258,7 +295,6 @@ async function submitForm() {
 </script>
 
 <style scoped>
-
 .particles-bg {
   top: 0;
   left: 0;

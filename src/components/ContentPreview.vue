@@ -2,8 +2,24 @@
   <!-- 遮罩层：点击空白处关闭 -->
   <div v-if="visible" class="custom-overlay" @click.self="handleClose">
     <div class="content-preview-dialog">
-      <!-- 自定义 × -->
       <button class="custom-close" @click="handleClose">×</button>
+      <!-- 上一个笔记按钮 -->
+      <button
+          class="note-arrow note-left"
+          :disabled="!hasPrevNote"
+          @click.stop="switchPrevNote"
+      >
+        &lt;
+      </button>
+
+      <!-- 下一个笔记按钮 -->
+      <button
+          class="note-arrow note-right"
+          :disabled="!hasNextNote"
+          @click.stop="switchNextNote"
+      >
+        &gt;
+      </button>
 
       <div class="content-preview-body">
         <!-- 左侧媒体区 -->
@@ -15,9 +31,13 @@
                 controls
                 autoplay
                 class="media"
-            />
-            <img v-else :src="currentUrl" class="media" />
+            ></video>
+
+            <a v-else :href="currentUrl" target="_blank">
+              <img :src="currentUrl" class="media" />
+            </a>
           </template>
+
 
           <button
               v-if="detail?.fileUrls?.length > 1"
@@ -35,6 +55,13 @@
         <div class="info-panel">
           <div class="info-header">
             <h2 class="title">{{ detail?.title }}</h2>
+            <button
+                v-if="user?.role === 'ADMIN'"
+                class="delete-btn"
+                @click="deleteContent"
+            >
+              删除
+            </button>
           </div>
 
           <div class="scroll-area">
@@ -49,7 +76,17 @@
                   <p><strong>{{ root.username }}</strong>：{{ root.text }}</p>
                   <div class="comment-meta-row">
                     <p class="comment-meta">{{ formatDate(root.createdAt) }}</p>
-                    <button class="reply-btn" @click="setReply(root.id)">回复</button>
+                    <div>
+                      <button
+                          v-if="user?.role === 'ADMIN'"
+                          class="reply-btn"
+                          @click="deleteComment(root.id)"
+
+                      >
+                        删除
+                      </button>
+                      <button class="reply-btn" @click="setReply(root.id)">回复</button>
+                    </div>
                   </div>
 
                   <!-- 折叠/展开所有子孙回复 -->
@@ -73,10 +110,19 @@
                     </p>
                     <div class="comment-meta-row">
                       <p class="comment-meta">{{ formatDate(reply.createdAt) }}</p>
-                      <button
-                          class="reply-btn"
-                          @click="setReply(reply.id)"
-                      >回复</button>
+                      <div>
+                        <button
+                            v-if="user?.role === 'ADMIN'"
+                            class="reply-btn"
+                            @click="deleteComment(reply.id)"
+                        >
+                          删除
+                        </button>
+                        <button
+                            class="reply-btn"
+                            @click="setReply(reply.id)"
+                        >回复</button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -117,11 +163,28 @@
 </template>
 
 <script setup>
-import { ref, watch, computed } from 'vue'
+import {ref, watch, computed, onMounted} from 'vue'
 import request from '@/http/request.js'
+const user = ref(null) // 新增：保存当前用户
+async function fetchUser() {
+  try {
+    const res = await request.get('/users/me')
+    const result = res.data
+    if (result.code === 200) {
+      user.value = result.data
+    } else {
+      console.error('接口返回错误:', result.message)
+    }
+  } catch (error) {
+    console.error('请求异常:', error)
+  }
+}
 
-const props = defineProps({ visible: Boolean, contentId: Number })
-const emit = defineEmits(['update:visible', 'updateDetail'])
+onMounted(() => {
+  fetchUser()
+})
+const props = defineProps({ visible: Boolean, contentId: Number ,idList: Array})
+const emit = defineEmits(['update:visible', 'updateDetail', 'deleted','switchNote'])
 
 const detail = ref(null)
 const activeIndex = ref(0)
@@ -131,10 +194,33 @@ const newComment = ref('')
 const replyParentId = ref(null)
 const replyParentUsername = ref('')
 const expanded = ref({})
+// 当前在 idList 中的索引
+const currentIndex = computed(() => {
+  return props.idList?.findIndex(id => id === props.contentId) ?? -1
+})
+
+// 是否可切换
+const hasPrevNote = computed(() => currentIndex.value > 0)
+const hasNextNote = computed(() => currentIndex.value < props.idList.length - 1)
+
+// 切换方法
+const switchPrevNote = () => {
+  if (hasPrevNote.value) {
+    const prevId = props.idList[currentIndex.value - 1]
+    emit('switchNote', prevId)
+  }
+}
+
+const switchNextNote = () => {
+  if (hasNextNote.value) {
+    const nextId = props.idList[currentIndex.value + 1]
+    emit('switchNote', nextId)
+  }
+}
 
 const currentUrl = computed(() => {
   const url = detail.value?.fileUrls?.[activeIndex.value] || ''
-  if (!url) return ''
+  if (!url) return '/default.png'
   return url.startsWith('http')
       ? url
       : `http://localhost:8080${url.startsWith('/') ? '' : '/'}${url}`
@@ -161,6 +247,39 @@ const handleClose = () => {
   replyParentUsername.value = ''
   expanded.value = {}
 }
+const deleteContent = async () => {
+  if (!detail.value?.id) return
+  if (!confirm('确认要删除该内容吗？')) return
+  try {
+    await request.delete(`/admin/contents/${detail.value.id}`)
+    alert('删除成功')
+    handleClose()
+    emit('deleted', detail.value.id)
+  } catch (e) {
+    console.error(e)
+    alert('删除失败')
+  }
+}
+const deleteComment = async (commentId) => {
+  if (!commentId) return
+  if (!confirm('确认要删除该评论吗？')) return
+  try {
+    await request.delete(`/admin/comments/${commentId}`)
+    alert('删除成功')
+    await fetchComments(props.contentId, true) // 重新加载评论
+    detail.value.commentCount-- // 同时更新评论数
+    emit('updateDetail', {
+      id: detail.value.id,
+      likeCount: detail.value.likeCount,
+      commentCount: detail.value.commentCount,
+      viewCount: detail.value.viewCount
+    })
+  } catch (e) {
+    console.error(e)
+    alert('删除失败')
+  }
+}
+
 
 const formatDate = str => {
   const d = new Date(str)
@@ -390,8 +509,22 @@ watch(() => [props.contentId, props.visible], async ([newId, isVisible]) => {
 }
 
 .info-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 16px;
 }
+
+.delete-btn {
+  background: red;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
 
 .scroll-area {
   flex: 1;
@@ -460,14 +593,14 @@ watch(() => [props.contentId, props.visible], async ([newId, isVisible]) => {
 
 .meta {
   display: flex;
-  flex-wrap: wrap; /* 可换行成多列 */
+  flex-wrap: wrap;
   justify-content: center;
-  gap: 20px; /* 图标块间距 */
+  gap: 20px;
 }
 
 .meta-item {
   display: flex;
-  flex-direction: column; /* 纵向排列：图标在上，数字在下 */
+  flex-direction: column;
   align-items: center;
   cursor: pointer;
 }
@@ -482,7 +615,6 @@ watch(() => [props.contentId, props.visible], async ([newId, isVisible]) => {
   width: 24px;
   height: 24px;
 }
-
 
 .custom-close {
   position: absolute;
@@ -501,4 +633,26 @@ watch(() => [props.contentId, props.visible], async ([newId, isVisible]) => {
   justify-content: center;
   line-height: 1;
 }
+.note-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(68, 73, 78, 0.45);
+  color: white;
+  border: none;
+  padding: 12px;
+  cursor: pointer;
+  font-size: 24px;
+  border-radius: 50%;
+  z-index: 10;
+}
+
+.note-left {
+  left: -60px;
+}
+
+.note-right {
+  right: -60px;
+}
+
 </style>

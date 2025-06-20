@@ -26,6 +26,10 @@
       >
         <el-table-column prop="id" label="ID" width="80" />
         <el-table-column prop="username" label="用户名" width="150" />
+        <el-table-column prop="contentCount" label="作品数" width="120" />、
+        <el-table-column prop="totalViewCount" label="浏览量" width="120" />
+        <el-table-column prop="receivedLikeCount" label="被赞量" width="120" />
+        <el-table-column prop="commentCount" label="评论量" width="120" />
         <el-table-column prop="role" label="当前角色" width="120">
           <template #default="scope">
             <el-tag 
@@ -39,11 +43,6 @@
         <el-table-column prop="createdAt" label="注册时间" width="180">
           <template #default="scope">
             {{ formatDate(scope.row.createdAt) }}
-          </template>
-        </el-table-column>
-        <el-table-column prop="updatedAt" label="最后更新" width="180">
-          <template #default="scope">
-            {{ formatDate(scope.row.updatedAt) }}
           </template>
         </el-table-column>
         <el-table-column label="操作" width="200">
@@ -65,12 +64,6 @@
                     :disabled="scope.row.role === 'ADMIN'"
                   >
                     管理员
-                  </el-dropdown-item>
-                  <el-dropdown-item 
-                    command="MODERATOR" 
-                    :disabled="scope.row.role === 'MODERATOR'"
-                  >
-                    版主
                   </el-dropdown-item>
                 </el-dropdown-menu>
               </template>
@@ -121,53 +114,13 @@ const filteredUsers = computed(() => {
 async function fetchUsers() {
   loading.value = true
   try {
-    // const res = await request.get('/admin/users', {
-    //   params: {
-    //     pageNum: pageNum.value,
-    //     pageSize: pageSize.value
-    //   }
-    // })
-    // const result = res.data
-    
-    // 模拟数据
-    const result = {
-      "code": 200,
-      "message": "操作成功",
-      "data": {
-        "records": [
-          {
-            "id": 1,
-            "username": "admin",
-            "role": "ADMIN",
-            "createdAt": "2025-05-01T10:00:00",
-            "updatedAt": "2025-06-01T15:30:00"
-          },
-          {
-            "id": 2,
-            "username": "user001",
-            "role": "USER",
-            "createdAt": "2025-05-15T14:20:00",
-            "updatedAt": "2025-05-20T09:45:00"
-          },
-          {
-            "id": 3,
-            "username": "moderator01",
-            "role": "MODERATOR",
-            "createdAt": "2025-05-20T16:10:00",
-            "updatedAt": "2025-06-02T11:15:00"
-          },
-          {
-            "id": 4,
-            "username": "testuser",
-            "role": "USER",
-            "createdAt": "2025-06-01T08:30:00",
-            "updatedAt": "2025-06-05T14:20:00"
-          }
-        ],
-        "total": 25
+    const res = await request.get('/admin/users', {
+      params: {
+        pageNum: pageNum.value,
+        pageSize: pageSize.value
       }
-    }
-
+    })
+    const result = res.data
     if (result.code === 200) {
       users.value = result.data.records
       total.value = result.data.total
@@ -199,14 +152,10 @@ async function handleRoleChange(userId, newRole) {
     )
 
     loading.value = true
-    // const res = await request.put(`/admin/users/${userId}/role`, {
-    //   role: newRole
-    // })
-    // const result = res.data
-
-    // 模拟成功响应
-    const result = { code: 200, message: '权限修改成功' }
-
+    const res = await request.put(`/admin/users/${userId}/role`, {
+      role: newRole
+    })
+    const result = res.data
     if (result.code === 200) {
       // 更新本地数据
       user.role = newRole
