@@ -67,7 +67,7 @@ const showBackTop = ref(false)
 const previewVisible = ref(false)
 const previewId = ref(0)
 
-const BASE_URL = 'http://localhost:8080'
+const BASE_URL = 'http://192.168.0.199:8080'
 
 const isImage = (url) => /\.(jpe?g|png|webp|gif)$/i.test(url)
 
@@ -103,25 +103,9 @@ const loadMore = async () => {
   if (loading.value || !hasMore.value) return
   loading.value = true
   try {
-    let res
-    if (keyword.value) {
-      console.log(keyword.value)
-      res = await request.get('/contents/es/search', {
-        params: {
-          keyword: keyword.value,
-          pageNum: pageNum.value,
-          pageSize
-        }
-      })
-      console.log(res)
-    } else {
-      res = await request.get('/contents/recommended', {
-        params: {
-          pageNum: pageNum.value,
-          pageSize
-        }
-      })
-    }
+    const res = await request.get('contents/recommended', {
+      params: {pageNum: pageNum.value, pageSize}
+    })
     if (res.data.code === 200) {
       const records = await Promise.all(
           res.data.data.records.map(async (item) => {
